@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
@@ -40,14 +41,19 @@ public class TituloController {
 			return CADASTRO_VIEW;
 		}
 		
-		titulos.save(titulo);
-		if(titulo.getCodigo() == null){
-			attributes.addFlashAttribute("mensagem", "Titulo salvo com sucesso!");
-		}else{
-			attributes.addFlashAttribute("mensagem", "Titulo alterado com sucesso!");
+		try{
+			titulos.save(titulo);
+			if(titulo.getCodigo() == null){
+				attributes.addFlashAttribute("mensagem", "Titulo salvo com sucesso!");
+			}else{
+				attributes.addFlashAttribute("mensagem", "Titulo alterado com sucesso!");
+			}
+			return "redirect:/titulos/novo";
+		}catch(DataIntegrityViolationException e){
+			errors.rejectValue("dataVencimento", null, "Data no formato invalido.");
+			return CADASTRO_VIEW;
 		}
 		
-		return "redirect:/titulos/novo";
 	}
 	
 	@RequestMapping
